@@ -15,6 +15,11 @@ import {Switch} from '../switch'
 // 💰 Here's a little utility that might come in handy
 // const callAll = (...fns) => (...args) => fns.forEach(fn => fn && fn(...args))
 
+// this accepts any number of functions and returns a function with any number of args.
+// and then call the function if it exists.
+const callAll = (...fns) => (...args) =>
+  fns.forEach(fn => fn && fn(...args))
+
 class Toggle extends React.Component {
   state = {on: false}
   toggle = () =>
@@ -30,9 +35,21 @@ class Toggle extends React.Component {
         'aria-pressed': this.state.on,
         onClick: this.toggle,
       },
+      getTogglerProps: ({onClick, ...props}) => {
+        return {
+          // onClick: (...args) => {
+          //   onClick && onClick(...args)
+          //   this.toggle()
+          // },
+          onClick: callAll(onClick, this.toggle),
+          'aria-expanded': this.state.on,
+          ...props,
+        }
+      },
     }
   }
   render() {
+    console.log(this.props)
     return this.props.children(this.getStateAndHelpers())
   }
 }
